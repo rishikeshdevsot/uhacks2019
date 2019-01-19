@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Button, Text, ScrollView, StyleSheet } from 'react-native';
+import { Button, Text, ScrollView, View, StyleSheet } from 'react-native';
 import { ImagePicker, Permissions, Constants } from 'expo';
-import { StyleSheet, Text, View } from 'react-native';
-import firebase from 'firebase';
+//import { StyleSheet, Text, View } from 'react-native';
+var firebase = require('firebase');
 //import { RNCamera, FaceDetector } from 'react-native-camera';
+
 
 //database stuff 
 //So basically we want to be able to ask the user for some preferences 
@@ -19,11 +20,18 @@ if (!firebase.apps.length) {
 }
 
 export default class App extends Component {
-  state = {
-    tags: '',
-    result: null,
-    abase64: null,
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      tags: '',
+      image: '',
+      result: null,
+      abase64: null
+    };
+    
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
 
   askPermissionsAsync = async () => {
     await Permissions.askAsync(Permissions.CAMERA);
@@ -31,7 +39,6 @@ export default class App extends Component {
     // you would probably do something to verify that permissions
     // are actually granted, but I'm skipping that for brevity
   };
-
 
   useLibraryHandler = async () => {
     await this.askPermissionsAsync();
@@ -112,14 +119,8 @@ export default class App extends Component {
 
   };
 
-  setState(data) {
-    this.setState({
-      tags: data
-    })
-  }
-
   //write tags to database 
-  /* writeTags(tags) {
+  writeTags(tags) {
     firebase.database().ref('Tags/').set({
       tags
     }).then((data) => {
@@ -129,10 +130,10 @@ export default class App extends Component {
       //error callback
       console.log('err: ', err)
     });
-  } */
+  } 
 
   pushTags(tags) {
-    firebase.database.ref('TagsList/').push({
+    firebase.database().ref('TagsList/').push({
       tags
     }).then((data) => {
       console.log('data: ', data)
@@ -151,6 +152,22 @@ export default class App extends Component {
     firebase.database().ref('Tags/').remove();
   }
 
+  handleChange(){
+    alert('tag changed')
+    this.setState({ tags: 'cool' });
+  }
+
+  handleSubmit() {
+    alert(this.state.tags + ' added');
+    //event.preventDefault();
+    this.writeTags(this.state.tags);
+  }
+
+  /* pushImages(image) {
+    firebase.database.ref('ImagesList/').push({
+    })
+  } */
+
   render() {
     return (
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
@@ -162,6 +179,15 @@ export default class App extends Component {
         <Text style={styles.paragraph}>
           {JSON.stringify(this.state.result)}
         </Text>
+        <Button
+          title="changeTag"
+          onPress={this.handleChange}
+        />
+        <Text></Text>
+        <Button
+          title="submitTag"
+          onPress={this.handleSubmit}
+        />
       </ScrollView>
     );
   }
