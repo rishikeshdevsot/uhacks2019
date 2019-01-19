@@ -27,7 +27,7 @@ export default class App extends Component {
     requests:[ 
     { 
     image:{ content: this.state.abase64, }, 
-    features:[{"type":"TEXT_DETECTION","maxResults":5},{"type":"DOCUMENT_TEXT_DETECTION","maxResults":5}],
+    features:[{"type":"TEXT_DETECTION","maxResults":10},{"type":"DOCUMENT_TEXT_DETECTION","maxResults":10}],
     },],
     };
       const response = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCznKndZSAxTcAPBn8VuamKN2e9SLc5hQY", 
@@ -40,8 +40,16 @@ export default class App extends Component {
     body: JSON.stringify(body),
     });
 
-    this.setState({result: response});
-    console.log(response.Response);
+      const json = await response.json();
+      //console.log(json);
+      console.log(json.responses[0].fullTextAnnotation.text);
+      //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[0].boundingBox.vertices[0].y);
+      //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[0].text);
+      //console.log("-----------------------------------------------------------------------------");
+      //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[1]);
+
+    // this.setState({result: response});
+    // console.log(response.Response);
     /*const myArrStr = JSON.stringify(response);
     const myArrStr1 = JSON.parse(myArrStr);
     const myArrStr2 = JSON.stringify(myArrStr1._bodyInit);
