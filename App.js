@@ -22,20 +22,20 @@ export default class App extends React.Component {
     this.state = {
       tags: ''
     };
-
-    this.writeTags = this.writeTags.bind(this)
+    //this.writeTags = this.writeTags.bind(this)
+    this.pushTags = this.pushTags.bind(this)
     this.deleteTag = this.deleteTag.bind(this)
     this.setState = this.setState.bind(this)
   }
 
-  setState(data){
+  setState(data) {
     this.setState({
       tags: data
     })
   }
 
   //write tags to database 
-  writeTags(tags) {
+  /* writeTags(tags) {
     firebase.database().ref('Tags/').set({
       tags
     }).then((data) => {
@@ -44,6 +44,22 @@ export default class App extends React.Component {
     }).catch((err) => {
       //error callback
       console.log('err: ', err)
+    });
+  } */
+
+  pushTags(tags) {
+    firebase.database.ref('TagsList/').push({
+      tags
+    }).then((data) => {
+      console.log('data: ', data)
+    }).catch((err) => {
+      console.log('err: ', err)
+    });
+  }
+
+  readTags() {
+    firebase.database().ref('Tags/').once('value', function (snapshot) {
+      console.log(snapshot.val())
     });
   }
 
