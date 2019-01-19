@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Button, Text, ScrollView, View, StyleSheet } from 'react-native';
 import { ImagePicker, Permissions, Constants } from 'expo';
+
 //import { StyleSheet, Text, View } from 'react-native';
 var firebase = require('firebase');
 //import { RNCamera, FaceDetector } from 'react-native-camera';
-
 
 //database stuff 
 //So basically we want to be able to ask the user for some preferences 
@@ -31,6 +31,8 @@ export default class App extends Component {
     
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.pushTags = this.pushTags.bind(this)
+    this.deleteTag = this.deleteTag.bind(this)
   }
 
   askPermissionsAsync = async () => {
@@ -121,7 +123,7 @@ export default class App extends Component {
 
   //write tags to database 
   writeTags(tags) {
-    firebase.database().ref('Tags/').set({
+    firebase.database().ref('Tags/' + this.state.tags).set({
       tags
     }).then((data) => {
       //successful callback
@@ -149,17 +151,23 @@ export default class App extends Component {
   }
 
   deleteTag() {
-    firebase.database().ref('Tags/').remove();
+    alert('tag deleted')
+    firebase.database().ref('Tags/' + this.state.tags).remove();
   }
 
   handleChange(){
     alert('tag changed')
-    this.setState({ tags: 'cool' });
+    var temp = Math.floor(Math.random()*100 + 1);
+    //var temp = this.state.tags
+    //temp.push(new tags)
+    //this.setState({tags: temp})
+    this.setState({ tags: temp });
   }
 
   handleSubmit() {
     alert(this.state.tags + ' added');
     //event.preventDefault();
+    //this.writeTags(this.state.tags);
     this.writeTags(this.state.tags);
   }
 
@@ -187,6 +195,11 @@ export default class App extends Component {
         <Button
           title="submitTag"
           onPress={this.handleSubmit}
+        />
+        <Text></Text>
+        <Button
+          title="deleteTag"
+          onPress={this.deleteTag}
         />
       </ScrollView>
     );
