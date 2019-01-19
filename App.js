@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Text, ScrollView, StyleSheet } from 'react-native';
+import { Button, Text, ScrollView, StyleSheet, View } from 'react-native';
 import { ImagePicker, Permissions, Constants } from 'expo';
+
 
 
 export default class App extends Component {
@@ -56,6 +57,30 @@ export default class App extends Component {
     const myArrStr3 = JSON.parse(myArrStr2);
     console.log(myArrStr3{responses});
     */
+    var s = '';
+    var i =0;
+    //for (let i=0; i < json.responses[0].fullTextAnnotation.pages.length; i++){
+      for(let j=0; j< json.responses[0].fullTextAnnotation.pages[i].blocks.length; j++){
+        for(let k=0; k<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs.length; k++){
+          for(let l=0; l<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words.length; l++){
+            for(let m=0; m<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols.length; m++){
+                
+              s = s + json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols[m].text;
+              //console.log(json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols[m].text);
+
+                
+            }
+            s = s + ' ';
+          }
+        }
+        s = s + '\n';
+      }
+    //}
+    console.log(s);
+
+              
+
+
 
   };
 
@@ -90,8 +115,6 @@ export default class App extends Component {
   console.log(JSON.parse(myArrStr));
 
   };
-
-
 
   render() {
     return (
