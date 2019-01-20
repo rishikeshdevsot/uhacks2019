@@ -1,9 +1,9 @@
 # NoteThisBoard
-![alt text](./photos/thumbnail.png)
+![alt text](https://github.com/gmin7/uhacks2019/blob/master/photos/thumbnail.JPG)
 Living in the big city, we're often conflicted between the desire to get more involved in our communities, with the effort to minimize the bombardment of information we encounter on a daily basis. NoteThisBoard is a mobile reactNative based application that aims to bring the user closer to a happy medium by allowing them to maximize their insights in a glance. This application enables the user to take a photo of a noticeboard filled with posters, and, after specifying their preferences, select the events that are predicted to be of highest relevance to them.
 
 ## Selecting preferences
-![alt text](./photos/prefs.png)
+![alt text](https://github.com/gmin7/uhacks2019/blob/master/photos/prefs.PNG)
 The home page of the app directs to a list of filters/preferences that the user can apply. The user should tap on all of his preferences and then click done. These preferences are added to the `google firebase` database.
 
 ## Taking/Selecting a picture
