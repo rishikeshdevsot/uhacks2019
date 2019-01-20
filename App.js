@@ -12,8 +12,12 @@ var firebase = require('firebase');
 //if any of the posters match any of those tags and save it
 var config = {
   databaseURL: 'https://uofthacksvi-6ec96.firebaseio.com',
+  //databaseURL:'https://optimal-tea-192005.firebaseio.com',
   projectID: 'uofthacksvi-6ec96'
+  //projectID: 'optimal-tea-192005'
 }
+
+var tagSet = new Set();
 
 if (!firebase.apps.length) {
   firebase.initializeApp(config);
@@ -23,8 +27,8 @@ export default class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      tags: '',
-      image: '',
+      tags: [],
+      //image: '',
       result: null,
       abase64: null
     };
@@ -118,7 +122,6 @@ export default class App extends Component {
     const myArrStr = JSON.stringify(response);
 
     console.log(JSON.parse(myArrStr));
-
   };
 
   //write tags to database 
@@ -146,13 +149,28 @@ export default class App extends Component {
 
   readTags() {
     firebase.database().ref('Tags/').once('value', function (snapshot) {
-      console.log(snapshot.val())
+      //can replace the search this.state.tags with a specific search value if needed 
+      //var parsed = JSON.parse(snapshot.val())
+      //console.log('data: ', snapshot.val())
+      if(snapshot.val()){
+        console.log('data: ', snapshot.val())
+      }else {
+        console.log('data not found')
+      }
+    }).then((data)=>{
+      console.log('data found')
+    }).catch((err)=>{
+      console.log('data does not exist')
     });
   }
 
   deleteTag() {
     alert('tag deleted')
-    firebase.database().ref('Tags/' + this.state.tags).remove();
+    firebase.database().ref('Tags/' + this.state.tags).remove().then((data)=>{
+      console.log('delete successful')
+    }).catch((err)=>{
+      console.log('couldnt delete')
+    });
   }
 
   handleChange(){
@@ -168,6 +186,7 @@ export default class App extends Component {
     alert(this.state.tags + ' added');
     //event.preventDefault();
     //this.writeTags(this.state.tags);
+    this.readTags();
     this.writeTags(this.state.tags);
   }
 
