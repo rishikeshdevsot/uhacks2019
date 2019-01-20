@@ -177,8 +177,10 @@ class DetailsScreen extends React.Component {
 
   constructor(props){
     super(props);
-    this.state = { result: null,
-    abase64: null, }
+    this.hello = "hello";
+    this.state = { result: null, abase64: null, matches: []};
+    this.readTags = this.readTags.bind(this);
+    //this.renderArray = this.renderArray.bind(this);
   }
 
   askPermissionsAsync = async () => {
@@ -188,10 +190,11 @@ class DetailsScreen extends React.Component {
     // are actually granted, but I'm skipping that for brevity
   };
 
-
   readTags() {
+    console.log("firebase call1\n");
     firebase.database().ref('Tags/tags').once('value', function (snapshot) {
-      console.log(snapshot.val())
+      console.log("firebase call2\n");
+      console.log(snapshot.val()[0]);
     });
   }
 
@@ -232,7 +235,7 @@ class DetailsScreen extends React.Component {
 
       const json = await response.json();
       //console.log(json);
-      console.log(json.responses[0].fullTextAnnotation.text);
+      //console.log(json.responses[0].fullTextAnnotation.text);
       //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[0].boundingBox.vertices[0].y);
       //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[0].text);
       //console.log("-----------------------------------------------------------------------------");
@@ -274,19 +277,47 @@ class DetailsScreen extends React.Component {
             body: JSON.stringify(body2),
           });
 
+          var temp = [];
+
           json2 = await response2.json();
           if(json2.categories!=undefined){
-            console.log(z + ' -- ');
-            console.log(json2.categories);
-            console.log('\n');            
+            //console.log(z + ' -- ');
+            firebase.database().ref('Tags/tags').once('value', function (snapshot) {
+              console.log(snapshot.val());
+              if(snapshot.val()!=undefined){
+                console.log("firebase call2\n");
+                console.log(json2.categories);
+                for(let a=0; a<json2.categories.length; a++){
+                  for(let b=0; b<snapshot.val().length; b++){
+                    if(json2.categories[a].name.includes(snapshot.val()[b])){
+                      console.log("Match:");
+                      //this.arrPush(z);
+                      console.log(z);
+                      //temp = this.state.matches;
+                      s = s + z + String(json2.categories[a].name);
+
+                      // this.setState((state) => {
+                      //   // Important: read `state` instead of `this.state` when updating.
+                      //   return {matches: state.matches.push(z)}
+                      // });
+                    }
+                  }
+                }
+                s = s+"\n";
+                console.log('\n');  
+              }
+            });          
           }
+          this.hello = s;
+          
+          //console.log(this.state.matches);
           
           //console.log(z);
           //console.log(json2);
           //console.log(json2.categories[0].name);
           //s = s + z + ' - ' + json2.categories[0].name + '\n';
-          z = z + ' - ' + json2 + '\n';
-          s = s + z;
+          //z = z + ' - ' + json2 + '\n';
+          //s = s + z;
           //console.log(z);
           z = '';
         }
@@ -294,6 +325,7 @@ class DetailsScreen extends React.Component {
           console.log('--------');
         }
       }
+      this.setState({matches: temp});
   };
 
   useCameraHandler = async () => {
@@ -304,31 +336,129 @@ class DetailsScreen extends React.Component {
     //this.setState({ result });
 
   const body = 
-  {
-  requests:[ 
-  { 
-  image:{ content: this.state.abase64, }, 
-  features:[{"type":"TEXT_DETECTION","maxResults":5},{"type":"DOCUMENT_TEXT_DETECTION","maxResults":5}],
-  },],
-  };
-    const response = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCznKndZSAxTcAPBn8VuamKN2e9SLc5hQY", 
-  {
-  method: 'POST',
-  headers: {
-  'Accept': 'application/json',
-  'Content-Type': 'application/json',
-},
-  body: JSON.stringify(body),
-  });
+    {
+    requests:[ 
+    { 
+    image:{ content: this.state.abase64, }, 
+    features:[{"type":"TEXT_DETECTION","maxResults":10},{"type":"DOCUMENT_TEXT_DETECTION","maxResults":10}],
+    },],
+    };
+      const response = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCznKndZSAxTcAPBn8VuamKN2e9SLc5hQY", 
+    {
+    method: 'POST',
+    headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
+    body: JSON.stringify(body),
+    });
 
-  this.setState({result: response});
-  const myArrStr = JSON.stringify(response);
+      var body2 = 
+    {
+          "document": {
+            type: "PLAIN_TEXT",
+            language:"EN",
+            content:"Lawrence of Arabia is a highly rated film biography about British Lieutenant T. E. Lawrence. Peter O'Toole plays Lawrence in the film.",
+          }
+    };
 
-  console.log(JSON.parse(myArrStr));
+      const json = await response.json();
+      //console.log(json);
+      //console.log(json.responses[0].fullTextAnnotation.text);
+      //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[0].boundingBox.vertices[0].y);
+      //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[0].text);
+      //console.log("-----------------------------------------------------------------------------");
+      //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[1]);
 
-  };
+    var s = '';
+    var z = '';
+    var i =0;
+    var json2;
+
+    //for (let i=0; i < json.responses[0].fullTextAnnotation.pages.length; i++){
+      for(let j=0; j< json.responses[0].fullTextAnnotation.pages[i].blocks.length; j++){
+        for(let k=0; k<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs.length; k++){
+          for(let l=0; l<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words.length; l++){
+            for(let m=0; m<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols.length; m++){
+                
+              z = z + json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols[m].text;
+              //console.log(json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols[m].text);
+
+                
+            }
+            z = z + ' ';
+          }
+        }
+
+      var h = z.split(" ");
+        //console.log(h);
+        if(h.length >= 20){
+          body2.document.content = z;
+          //console.log(body2);
+
+          var response2 = await fetch("https://language.googleapis.com/v1/documents:classifyText?key=AIzaSyCbgPPNl5-CA9qw5ND0hcqDis1XEWeC61Y", 
+          {
+              method: 'POST',
+              headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body2),
+          });
+
+          var temp = [];
+
+          json2 = await response2.json();
+          if(json2.categories!=undefined){
+            //console.log(z + ' -- ');
+            firebase.database().ref('Tags/tags').once('value', function (snapshot) {
+              console.log(snapshot.val());
+              if(snapshot.val()!=undefined){
+                console.log("firebase call2\n");
+                console.log(json2.categories);
+                for(let a=0; a<json2.categories.length; a++){
+                  for(let b=0; b<snapshot.val().length; b++){
+                    if(json2.categories[a].name.includes(snapshot.val()[b])){
+                      console.log("Match:");
+                      //this.arrPush(z);
+                      console.log(z);
+                      //temp = this.state.matches;
+                      s = s + z + String(json2.categories[a].name);
+
+                      // this.setState((state) => {
+                      //   // Important: read `state` instead of `this.state` when updating.
+                      //   return {matches: state.matches.push(z)}
+                      // });
+                    }
+                  }
+                }
+                s = s+"\n";
+                console.log('\n');  
+              }
+            });          
+          }
+          this.hello = s;
+          
+          //console.log(this.state.matches);
+          
+          //console.log(z);
+          //console.log(json2);
+          //console.log(json2.categories[0].name);
+          //s = s + z + ' - ' + json2.categories[0].name + '\n';
+          //z = z + ' - ' + json2 + '\n';
+          //s = s + z;
+          //console.log(z);
+          z = '';
+        }
+        else{
+          console.log('--------');
+        }
+      }
+      this.setState({matches: temp});
+};
 
   render() {
+    this.readTags();
     return (
       <ScrollView style={{flex: 1}} contentContainerStyle={styles.container}>
         <Button title="launchCameraAsync" onPress={this.useCameraHandler} />
@@ -336,15 +466,26 @@ class DetailsScreen extends React.Component {
           title="launchImageLibraryAsync"
           onPress={this.useLibraryHandler}
         />
-        <Text style={styles.paragraph}>
-          Hello
-        </Text>
+
+          <Text>{String(this.hello)}</Text>         
       </ScrollView>
     );
   }
 }
 
-
+/*
+class showSometing extends React.Component{
+  constructor(props){
+    super(props);
+  };
+  render{
+    return(
+      <div>this.props.value</div>
+      );  
+  }
+  }
+}
+*/
 
 const RootStack = createStackNavigator(
   {
@@ -383,21 +524,4 @@ export default class App extends React.Component {
     return <AppContainer />;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
