@@ -1,15 +1,186 @@
-
-import React, { Component } from 'react';
-import { Button, Text, ScrollView, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { Button, Text, ScrollView, StyleSheet, View, Switch, TouchableHighlight} from 'react-native';
+import { createAppContainer, createStackNavigator } from 'react-navigation'; // Version can be specified in package.json
 import { ImagePicker, Permissions, Constants } from 'expo';
 
+var firebase = require('firebase');
+
+var config = {
+  databaseURL: 'https://uofthacksvi-6ec96.firebaseio.com',
+  projectID: 'uofthacksvi-6ec96'
+}
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(config);
+}
+
+class HomeScreen extends React.Component {
+  constructor(props){
+    super(props);
+    //this.prefArray =  [];
+    color = "red";
+    this.state = { styleIndex: 0, prefArray: [] }
+  }
+
+  arr(name) {
+    this.state.prefArray.push(name);
+    //console.log(this.state.prefArray);
+  }
+
+  writeTags(tags) {
+    firebase.database().ref('Tags/').set({
+      tags
+    }).then((data) => {
+      //successful callback
+      console.log('data: ', data)
+    }).catch((err) => {
+      //error callback
+      console.log('err: ', err)
+    });
+  } 
+
+  submitTags(){
+
+    this.writeTags(this.state.prefArray);
+    this.props.navigation.navigate('Details');
+
+  }
+
+  render() {
+    return (
+      <ScrollView>
+        <Text>Home Screen</Text>
 
 
-export default class App extends Component {
-  state = {
-    result: null,
-    abase64: null,
-  };
+
+        <Button
+          title="Adult"
+          onPress={() => this.arr('Adult')}
+        />
+
+        <Button 
+          title="Arts & Entertainment"
+          onPress={() => this.arr('Arts & Entertainment')}
+        />
+        <Button
+          title="Autos & Vehicles"
+          onPress={() => this.arr('Autos & Vehiclesi')}
+        />
+        <Button
+          title="Beauty & Fitness"
+          onPress={() => this.arr('Beauty & Fitness')}
+        />
+        <Button
+          title="Books & Literature"
+          onPress={() => this.arr('Books & Literature')}
+        />
+        <Button
+          title="Business & Industrial"
+          onPress={() => this.arr('Business & Industrial')}
+        />
+        <Button
+          title="Computers & Electronics"
+          onPress={() => this.arr('Computers & Electronics')}
+        />
+        <Button
+          title="Finance"
+          onPress={() => this.arr('Finance')}
+        />
+        <Button
+          title="Food & Drink"
+          onPress={() => this.arr('Food & Drink')}
+        />
+        <Button
+          title="Games"
+          onPress={() => this.arr('Games')}
+        />
+        <Button
+          title="Health"
+          onPress={() => this.arr('Health')}
+        />
+        <Button
+          title="Hobbies & Leisure"
+          onPress={() => this.arr('Hobbies & Leisure')}
+        />
+        <Button
+          title="Home & Garden"
+          onPress={() => this.arr('Home & Garden')}
+        />
+        <Button
+          title="Internet & Telecom"
+          onPress={() => this.arr('Internet & Telecom')}
+        />
+        <Button
+          title="Jobs & Education"
+          onPress={() => this.arr('Jobs & Education')}
+        />
+        <Button
+          title="Law & Government"
+          onPress={() => this.arr('Law & Government')}
+        />
+        <Button
+          title="News"
+          onPress={() => this.arr('News')}
+        />
+        <Button
+          title="Online Communities"
+          onPress={() => this.arr('Online Communities')}
+        />
+        <Button
+          title="People & Society"
+          onPress={() => this.arr('People & Society')}
+        />
+        <Button
+          title="Pets & Animals"
+          onPress={() => this.arr('Pets & Animals')}
+        />
+        <Button
+          title="Real Estate"
+          onPress={() => this.arr('Real Estate')}
+        />
+        <Button
+          title="Reference"
+          onPress={() => this.arr('Reference')}
+        />
+        <Button
+          title="Science"
+          onPress={() => this.arr('Science')}
+        />
+        <Button
+          title="Shopping"
+          onPress={() => this.arr('Shopping')}
+        />
+        <Button
+          title="Sports"
+          onPress={() => this.arr('Sports')}
+        />
+        <Button
+          title="Travel"
+          onPress={() => this.arr('Travel')}
+        />
+        <Button
+          title="Done"
+          onPress={() => 
+            this.submitTags()
+          }
+        />
+
+      </ScrollView>
+
+    );
+
+  }
+}
+
+
+class DetailsScreen extends React.Component {
+
+  constructor(props){
+    super(props);
+    this.state = { result: null, abase64: null, matches:[]};
+    this.readTags = this.readTags.bind(this);
+    this.renderArray = this.renderArray.bind(this);
+  }
 
   askPermissionsAsync = async () => {
     await Permissions.askAsync(Permissions.CAMERA);
@@ -18,11 +189,22 @@ export default class App extends Component {
     // are actually granted, but I'm skipping that for brevity
   };
 
+
+  readTags() {
+    console.log("firebase call1\n");
+    firebase.database().ref('Tags/tags').once('value', function (snapshot) {
+      console.log("firebase call2\n");
+      console.log(snapshot.val()[0]);
+    });
+  }
+
   useLibraryHandler = async () => {
     await this.askPermissionsAsync();
     const { cancelled,uri,base64, } = await ImagePicker.launchImageLibraryAsync({ base64: true, allowsEditing: true, });
     //this.setState({ result });
     this.setState({abase64: base64});
+    //this.snapshot;
+
 
     const body = 
     {
@@ -32,10 +214,6 @@ export default class App extends Component {
     features:[{"type":"TEXT_DETECTION","maxResults":10},{"type":"DOCUMENT_TEXT_DETECTION","maxResults":10}],
     },],
     };
-
-    
-
-
       const response = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCznKndZSAxTcAPBn8VuamKN2e9SLc5hQY", 
     {
     method: 'POST',
@@ -46,7 +224,7 @@ export default class App extends Component {
     body: JSON.stringify(body),
     });
 
-    var body2 = 
+      var body2 = 
     {
           "document": {
             type: "PLAIN_TEXT",
@@ -63,18 +241,11 @@ export default class App extends Component {
       //console.log("-----------------------------------------------------------------------------");
       //console.log(json.responses[0].fullTextAnnotation.pages[0].blocks[1]);
 
-    // this.setState({result: response});
-    // console.log(response.Response);
-    /*const myArrStr = JSON.stringify(response);
-    const myArrStr1 = JSON.parse(myArrStr);
-    const myArrStr2 = JSON.stringify(myArrStr1._bodyInit);
-    const myArrStr3 = JSON.parse(myArrStr2);
-    console.log(myArrStr3{responses});
-    */
     var s = '';
     var z = '';
     var i =0;
     var json2;
+
     //for (let i=0; i < json.responses[0].fullTextAnnotation.pages.length; i++){
       for(let j=0; j< json.responses[0].fullTextAnnotation.pages[i].blocks.length; j++){
         for(let k=0; k<json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs.length; k++){
@@ -83,13 +254,14 @@ export default class App extends Component {
                 
               z = z + json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols[m].text;
               //console.log(json.responses[0].fullTextAnnotation.pages[i].blocks[j].paragraphs[k].words[l].symbols[m].text);
+
                 
             }
-            //s = s + ' ';
             z = z + ' ';
           }
         }
-        var h = z.split(" ");
+
+      var h = z.split(" ");
         //console.log(h);
         if(h.length >= 20){
           body2.document.content = z;
@@ -105,11 +277,31 @@ export default class App extends Component {
             body: JSON.stringify(body2),
           });
 
+          var temp;
+
           json2 = await response2.json();
           if(json2.categories!=undefined){
-            console.log(z + ' -- ');
-            console.log(json2.categories);
-            console.log('\n');
+            //console.log(z + ' -- ');
+            firebase.database().ref('Tags/tags').once('value', function (snapshot) {
+              console.log(snapshot.val());
+              if(snapshot.val()!=undefined){
+                console.log("firebase call2\n");
+                console.log(json2.categories);
+                for(let a=0; a<json2.categories.length; a++){
+                  for(let b=0; b<snapshot.val().length; b++){
+                    if(json2.categories[a].name.includes(snapshot.val()[b])){
+                      console.log("Match:");
+                  
+                      temp.push(z);
+                      this.setState((state) => ({
+                        matches: temp
+                      }));
+                    }
+                  }
+                }
+                console.log('\n');  
+              }
+            });          
           }
           
           //console.log(z);
@@ -125,9 +317,7 @@ export default class App extends Component {
           console.log('--------');
         }
       }
-    //}
-    //console.log(s);
-};
+  };
 
   useCameraHandler = async () => {
     await this.askPermissionsAsync();
@@ -157,11 +347,16 @@ export default class App extends Component {
   this.setState({result: response});
   const myArrStr = JSON.stringify(response);
 
-  //console.log(JSON.parse(myArrStr));
+  console.log(JSON.parse(myArrStr));
 
   };
 
+  renderArray(){
+    return this.state.matches.map((item) => <Text>{item}</Text>);
+  }
+
   render() {
+    this.readTags();
     return (
       <ScrollView style={{flex: 1}} contentContainerStyle={styles.container}>
         <Button title="launchCameraAsync" onPress={this.useCameraHandler} />
@@ -169,13 +364,30 @@ export default class App extends Component {
           title="launchImageLibraryAsync"
           onPress={this.useLibraryHandler}
         />
-        <Text style={styles.paragraph}>
-          {JSON.stringify(this.state.result)}
-        </Text>
+        <View style={styles.paragraph}>
+          {this.renderArray()}
+        </View>
       </ScrollView>
     );
   }
 }
+
+
+
+const RootStack = createStackNavigator(
+  {
+    Home: {
+      screen: HomeScreen,
+    },
+    Details: {
+      screen: DetailsScreen,
+    },
+  },
+  {
+    initialRouteName: 'Home',
+  }
+);
+
 
 const styles = StyleSheet.create({
   container: {
@@ -189,3 +401,14 @@ const styles = StyleSheet.create({
     color: '#34495e',
   },
 });
+
+
+
+const AppContainer = createAppContainer(RootStack);
+
+export default class App extends React.Component {
+  render() {
+    return <AppContainer />;
+  }
+}
+
